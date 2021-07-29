@@ -181,7 +181,7 @@ namespace NamePlateDebuffs.StatusNode
             newTextNode->AtkResNode.SetPositionShort(0, 23);
             newTextNode->AtkResNode.SetWidth(24);
             newTextNode->AtkResNode.SetHeight(18);
-            newTextNode->AtkResNode.Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop); ;
+            newTextNode->AtkResNode.Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop);
             newTextNode->AtkResNode.DrawFlags = 12;
 
             newTextNode->LineSpacing = 12;

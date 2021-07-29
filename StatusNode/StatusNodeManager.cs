@@ -17,15 +17,11 @@ namespace NamePlateDebuffs.StatusNode
     {
         private NamePlateDebuffsPlugin _plugin;
 
-        private delegate void AddonNamePlateFinalizePrototype(AddonNamePlate* thisPtr);
-        private Hook<AddonNamePlateFinalizePrototype> hookAddonNamePlateFinalize;
-
         private AddonNamePlate* namePlateAddon;
 
         private Dictionary<ulong, StatusNodeGroup> NodeGroups = new();
 
         private static byte NamePlateCount = 50;
-        private static ushort NamePlateNodeCount = 10;
         private static uint StartingNodeId = 50000;
 
         internal StatusNodeManager(NamePlateDebuffsPlugin p)
@@ -33,28 +29,17 @@ namespace NamePlateDebuffs.StatusNode
             _plugin = p; 
         }
 
-        internal void Initialize()
-        {
-            hookAddonNamePlateFinalize = new Hook<AddonNamePlateFinalizePrototype>(_plugin.Address.AddonNamePlateFinalizeAddress, AddonNamePlateFinalizeDetour);
-
-            hookAddonNamePlateFinalize.Enable();
-            
-            var namePlate = _plugin.Interface.Framework.Gui.GetAddonByName("NamePlate", 1);
-            if (namePlate != null)
-            {
-                namePlateAddon = (AddonNamePlate*)namePlate.Address.ToPointer();
-                BuildNodes();
-            }
-        }
-
         public void Dispose()
         {
-            hookAddonNamePlateFinalize.Dispose();
-
             DestroyNodes();
         }
 
-        private bool BuildNodes(bool rebuild = false)
+        public void SetNamePlateAddonPointer(AddonNamePlate* addon)
+        {
+            namePlateAddon = addon;
+        }
+
+        public bool BuildNodes(bool rebuild = false)
         {
             if (namePlateAddon == null) return false;
             if (NodeGroups.Any() && !rebuild) return true;
@@ -86,7 +71,7 @@ namespace NamePlateDebuffs.StatusNode
             return true;
         }
 
-        private void DestroyNodes()
+        public void DestroyNodes()
         {
             if (namePlateAddon == null) return;
 
@@ -111,14 +96,6 @@ namespace NamePlateDebuffs.StatusNode
             {
                 PluginLog.Debug("node group still has member after removing all - something went wrong");
             }
-        }
-
-        // Hooks
-        public void AddonNamePlateFinalizeDetour(AddonNamePlate* thisPtr)
-        {
-            DestroyNodes();
-            namePlateAddon = null;
-            hookAddonNamePlateFinalize.Original(thisPtr);
         }
     }
 }

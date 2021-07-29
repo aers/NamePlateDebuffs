@@ -15,6 +15,7 @@ namespace NamePlateDebuffs
         internal DalamudPluginInterface Interface;
         internal PluginAddressResolver Address;
         internal StatusNodeManager StatusNodeManager;
+        internal AddonNamePlateHooks Hooks;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
@@ -26,10 +27,13 @@ namespace NamePlateDebuffs
             Address.Setup(Interface.TargetModuleScanner);
 
             StatusNodeManager = new StatusNodeManager(this);
-            StatusNodeManager.Initialize();
+
+            Hooks = new AddonNamePlateHooks(this);
+            Hooks.Initialize();
         }
         public void Dispose()
         {
+            Hooks.Dispose();
             StatusNodeManager.Dispose();
         }
 

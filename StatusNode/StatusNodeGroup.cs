@@ -92,10 +92,10 @@ namespace NamePlateDebuffs.StatusNode
             {
                 StatusNodes[i].IconNode->AtkResNode.ToggleVisibility(true);
                 StatusNodes[i].DurationNode->AtkResNode.ToggleVisibility(true);
-                StatusNodes[i].RootNode->ToggleVisibility(false);
+                StatusNodes[i].RootNode->ToggleVisibility(true);
             }
 
-            RootNode->ToggleVisibility(false);
+            RootNode->ToggleVisibility(true);
         }
 
         private AtkResNode* CreateRootNode()
