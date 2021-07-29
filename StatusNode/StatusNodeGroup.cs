@@ -95,17 +95,16 @@ namespace NamePlateDebuffs.StatusNode
             RootNode->SetPositionShort((short)_plugin.Config.GroupX, (short)_plugin.Config.GroupY);
             RootNode->SetScale(_plugin.Config.Scale, _plugin.Config.Scale);
             
+            RootNode->SetWidth((ushort) (StatusNodes[0].RootNode->Width * NodePerGroupCount + _plugin.Config.NodeSpacing * (NodePerGroupCount - 1)));
+            RootNode->SetHeight(StatusNodes[0].RootNode->Height);
+
             for (int i = 0; i < NodePerGroupCount; i++)
             {
                 if (StatusNodes[i] != null)
                 {
-                    StatusNodes[i].RootNode->SetPositionShort((short) (i * (_plugin.Config.IconWidth + _plugin.Config.NodeSpacing)), 0);
+                    StatusNodes[i].RootNode->SetPositionShort((short)(i * (StatusNodes[0].RootNode->Width + _plugin.Config.NodeSpacing)), 0);
                 }
             }
-
-            RootNode->SetWidth((ushort) (24 * NodePerGroupCount + _plugin.Config.NodeSpacing * (NodePerGroupCount - 1)));
-
-            RootNode->SetHeight((ushort) (_plugin.Config.IconY + _plugin.Config.IconHeight));
         }
 
         public void SetVisibility(bool enable, bool setChildren)

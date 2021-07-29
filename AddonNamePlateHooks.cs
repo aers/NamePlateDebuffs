@@ -51,7 +51,7 @@ namespace NamePlateDebuffs
 
         public void AddonNamePlateDrawDetour(AddonNamePlate* thisPtr)
         {
-            if (!_plugin.Config.Enabled)
+            if (!_plugin.Config.Enabled || _plugin.InPvp)
             {
                 if (Timer.IsRunning)
                 {
@@ -96,7 +96,7 @@ namespace NamePlateDebuffs
 
                     _plugin.StatusNodeManager.SetGroupVisibility(objectInfo->NamePlateIndex, true, false);
 
-                    if (_plugin.Config.ConfigMode)
+                    if (_plugin.UI.IsConfigOpen)
                     {
                         _plugin.StatusNodeManager.ForEachNode(node => node.SetStatus(StatusNode.StatusNode.DefaultIconId, 20));
                     }

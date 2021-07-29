@@ -40,7 +40,7 @@ namespace NamePlateDebuffs.StatusNode
 
             if (timer != CurrentTimer)
             {
-                DurationNode->SetText($"{timer}");
+                DurationNode->SetNumber(timer);
                 CurrentTimer = timer;
             }
         }
@@ -49,14 +49,22 @@ namespace NamePlateDebuffs.StatusNode
         {
             if (!Built()) return;
 
-            RootNode->SetWidth((ushort) 24);
             IconNode->AtkResNode.SetPositionShort((short)_plugin.Config.IconX, (short)_plugin.Config.IconY);
             IconNode->AtkResNode.SetHeight((ushort)_plugin.Config.IconHeight);
             IconNode->AtkResNode.SetWidth((ushort)_plugin.Config.IconWidth);
             DurationNode->AtkResNode.SetPositionShort((short)_plugin.Config.DurationX, (short)_plugin.Config.DurationY);
             DurationNode->FontSize = (byte) _plugin.Config.FontSize;
+            ushort outWidth = 0;
+            ushort outHeight = 0;
+            DurationNode->GetTextDrawSize(&outWidth, &outHeight);
+            DurationNode->AtkResNode.SetWidth((ushort)(outWidth + 2 * _plugin.Config.DurationPadding));
+            DurationNode->AtkResNode.SetHeight((ushort)(outHeight + 2 * _plugin.Config.DurationPadding));
 
-            RootNode->SetHeight((ushort)(_plugin.Config.IconY + _plugin.Config.IconHeight));
+            var iconHeight = (ushort)(_plugin.Config.IconY + _plugin.Config.IconHeight);
+            var durationHeight = (ushort)(_plugin.Config.DurationY + DurationNode->AtkResNode.Height);
+
+            RootNode->SetHeight(durationHeight > iconHeight ? durationHeight : iconHeight);
+            RootNode->SetWidth((ushort)(DurationNode->AtkResNode.Width > _plugin.Config.IconWidth ? DurationNode->AtkResNode.Width : _plugin.Config.IconWidth));
 
             DurationNode->TextColor.R = (byte)(_plugin.Config.DurationTextColor.X * 255);
             DurationNode->TextColor.G = (byte)(_plugin.Config.DurationTextColor.Y * 255);
@@ -239,10 +247,10 @@ namespace NamePlateDebuffs.StatusNode
             newTextNode->LineSpacing = 12;
             newTextNode->AlignmentFontType = 4;
             newTextNode->FontSize = 12;
-            newTextNode->TextFlags = 8;
+            newTextNode->TextFlags = (byte)(TextFlags.AutoAdjustNodeSize | TextFlags.Edge);
             newTextNode->TextFlags2 = 0;
 
-            newTextNode->SetText("20");
+            newTextNode->SetNumber(20);
 
             return newTextNode;
         }

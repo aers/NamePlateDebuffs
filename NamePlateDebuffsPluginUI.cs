@@ -18,6 +18,7 @@ namespace NamePlateDebuffs
 #else
         private bool ConfigOpen = false;
 #endif
+        public bool IsConfigOpen => ConfigOpen;
 
         public NamePlateDebuffsPluginUI(NamePlateDebuffsPlugin p)
         {
@@ -33,6 +34,11 @@ namespace NamePlateDebuffs
             _plugin.Interface.UiBuilder.OnBuildUi -= UiBuilder_OnBuild;
         }
 
+        public void ToggleConfig()
+        {
+            ConfigOpen = !ConfigOpen;
+        }
+
         public void UiBuilder_OnOpenConfigUi(object sender, EventArgs args) => ConfigOpen = true;
 
         public void UiBuilder_OnBuild()
@@ -40,7 +46,7 @@ namespace NamePlateDebuffs
             if (!ConfigOpen)
                 return;
 
-            ImGui.SetNextWindowSize(new Vector2(405, 548), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(420, 625), ImGuiCond.Always);
 
             if (!ImGui.Begin(_plugin.Name, ref ConfigOpen, ImGuiWindowFlags.NoResize))
             {
@@ -52,9 +58,6 @@ namespace NamePlateDebuffs
             {
                 if (ImGui.Checkbox("Enabled", ref _plugin.Config.Enabled))
                     _plugin.Config.Save();
-                ImGui.SameLine();
-                if (ImGui.Checkbox("Display Test Statuses", ref _plugin.Config.ConfigMode))
-                    _plugin.Config.Save();
                 if (ImGui.InputInt("Update Interval (ms)", ref _plugin.Config.UpdateInterval, 10))
                     _plugin.Config.Save();
                 if (ImGui.IsItemHovered())
@@ -65,6 +68,7 @@ namespace NamePlateDebuffs
                     _plugin.StatusNodeManager.LoadConfig();
                     _plugin.Config.Save();
                 }
+                ImGui.Text("While config is open, test nodes are displayed to help with configuration.");
             }
 
             if (ImGui.CollapsingHeader("Node Group", ImGuiTreeNodeFlags.DefaultOpen))
@@ -105,6 +109,7 @@ namespace NamePlateDebuffs
 
             if (ImGui.CollapsingHeader("Node", ImGuiTreeNodeFlags.DefaultOpen))
             {
+                ImGui.Text("Try and maintain a 3:4 ratio of Icon Width:Icon Height for best results.");
                 if (ImGui.InputInt("Icon X Offset", ref _plugin.Config.IconX))
                 {
                     if (_plugin.Config.IconX > 100)
@@ -165,6 +170,15 @@ namespace NamePlateDebuffs
                         _plugin.Config.FontSize = 60;
                     if (_plugin.Config.FontSize < 1)
                         _plugin.Config.FontSize = 1;
+                    _plugin.StatusNodeManager.LoadConfig();
+                    _plugin.Config.Save();
+                }
+                if (ImGui.InputInt("Duration Padding", ref _plugin.Config.DurationPadding))
+                {
+                    if (_plugin.Config.DurationPadding > 100)
+                        _plugin.Config.DurationPadding = 100;
+                    if (_plugin.Config.DurationPadding < -100)
+                        _plugin.Config.DurationPadding = -100;
                     _plugin.StatusNodeManager.LoadConfig();
                     _plugin.Config.Save();
                 }

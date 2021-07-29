@@ -97,8 +97,8 @@ namespace NamePlateDebuffs.StatusNode
 
         public void LoadConfig()
         {
-            ForEachGroup(group => group.LoadConfig());
             ForEachNode(node => node.LoadConfig());
+            ForEachGroup(group => group.LoadConfig());
         }
 
         public bool BuildNodes(bool rebuild = false)

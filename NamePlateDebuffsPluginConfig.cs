@@ -16,7 +16,6 @@ namespace NamePlateDebuffs
 
         // General
         public bool Enabled = true;
-        public bool ConfigMode;
         public int UpdateInterval = 100;
 
         // NodeGroup
@@ -32,7 +31,8 @@ namespace NamePlateDebuffs
         public int IconHeight = 32;
         public int DurationX = 0;
         public int DurationY = 23;
-        public int FontSize = 12;
+        public int FontSize = 14;
+        public int DurationPadding = 2;
         public Vector4 DurationTextColor = new Vector4(1, 1, 1, 1);
         public Vector4 DurationEdgeColor = new Vector4(0, 0, 0, 1);
 
@@ -55,7 +55,8 @@ namespace NamePlateDebuffs
             IconHeight = 32;
             DurationX = 0;
             DurationY = 23;
-            FontSize = 12;
+            FontSize = 14;
+            DurationPadding = 2;
             DurationTextColor.X = 1;
             DurationTextColor.Y = 1;
             DurationTextColor.Z = 1;
