@@ -78,6 +78,38 @@ namespace NamePlateDebuffs.StatusNode
             }
         }
 
+        public void SetVisibility(bool enable, bool setChildren)
+        {
+            RootNode->ToggleVisibility(enable);
+
+            if (setChildren)
+            {
+                foreach (var node in StatusNodes)
+                {
+                    node.SetVisibility(enable);
+                }
+            }
+        }
+        
+        public void SetStatus(int statusIndex, int id, int timer)
+        {
+            if (statusIndex > NodePerGroupCount)
+                return;
+
+            StatusNodes[statusIndex].SetStatus(id, timer);
+        }
+
+        public void HideUnusedStatus(int statusCount)
+        {
+            if (statusCount > NodePerGroupCount)
+                statusCount = NodePerGroupCount;
+
+            for (int i = NodePerGroupCount - 1; i > statusCount - 1; i--)
+            {
+                StatusNodes[i].SetVisibility(false);
+            }
+        }
+
         public void SetupLayout()
         {
             for (uint i = 0; i < NodePerGroupCount; i++)
@@ -88,14 +120,14 @@ namespace NamePlateDebuffs.StatusNode
 
         public void SetupVisibility()
         {
-            for (uint i = 0; i < NodePerGroupCount; i++)
+            foreach(var node in StatusNodes)
             {
-                StatusNodes[i].IconNode->AtkResNode.ToggleVisibility(true);
-                StatusNodes[i].DurationNode->AtkResNode.ToggleVisibility(true);
-                StatusNodes[i].RootNode->ToggleVisibility(true);
+                node.IconNode->AtkResNode.ToggleVisibility(true);
+                node.DurationNode->AtkResNode.ToggleVisibility(true);
+                node.RootNode->ToggleVisibility(false);
             }
 
-            RootNode->ToggleVisibility(true);
+            RootNode->ToggleVisibility(false);
         }
 
         private AtkResNode* CreateRootNode()
@@ -112,6 +144,7 @@ namespace NamePlateDebuffs.StatusNode
             newResNode->Type = NodeType.Res;
             newResNode->SetHeight(41);
             newResNode->SetWidth(24 * 4 + 3 * 3);
+            newResNode->SetPositionShort(27, 30);
             newResNode->Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop);
             newResNode->DrawFlags = 0;
 

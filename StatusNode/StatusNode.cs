@@ -13,6 +13,31 @@ namespace NamePlateDebuffs.StatusNode
 
         private static int DefaultIconId = 10205;
 
+        private int CurrentIconId = DefaultIconId;
+        private int CurrentTimer = 60;
+
+        public void SetVisibility(bool enable)
+        {
+            RootNode->ToggleVisibility(enable);
+        }
+
+        public void SetStatus(int id, int timer)
+        {
+            SetVisibility(true);
+
+            if (id != CurrentIconId)
+            {
+                IconNode->LoadIconTexture(id, 0);
+                CurrentIconId = id;
+            }
+
+            if (timer != CurrentTimer)
+            {
+                DurationNode->SetText($"{timer}");
+                CurrentTimer = timer;
+            }
+        }
+
         public bool Built() => RootNode != null && IconNode != null && DurationNode != null;
 
         public bool BuildNodes(uint baseNodeId)
@@ -113,7 +138,7 @@ namespace NamePlateDebuffs.StatusNode
             newImageNode->AtkResNode.Type = NodeType.Image;
             newImageNode->AtkResNode.SetWidth(24);
             newImageNode->AtkResNode.SetHeight(32);
-            newImageNode->AtkResNode.Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop);
+            newImageNode->AtkResNode.Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop | NodeFlags.UseDepthBasedPriority);
             newImageNode->AtkResNode.DrawFlags = 0;
 
             newImageNode->WrapMode = 1;
@@ -181,7 +206,7 @@ namespace NamePlateDebuffs.StatusNode
             newTextNode->AtkResNode.SetPositionShort(0, 23);
             newTextNode->AtkResNode.SetWidth(24);
             newTextNode->AtkResNode.SetHeight(18);
-            newTextNode->AtkResNode.Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop);
+            newTextNode->AtkResNode.Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop | NodeFlags.UseDepthBasedPriority);
             newTextNode->AtkResNode.DrawFlags = 12;
 
             newTextNode->LineSpacing = 12;
