@@ -49,13 +49,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ILMerge" Version="3.0.41" />
-    <PackageReference Include="ILMerge.MSBuild.Task" Version="1.0.7" />
+    <PackageReference Include="DalamudPackager" Version="1.2.2" />
+    <PackageReference Include="ILRepack" Version="2.0.18" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="FFXIVClientStructs">
       <HintPath>..\..\FFXIVClientStructs\bin\Debug\FFXIVClientStructs.dll</HintPath>
+    </Reference>
+    <Reference Include="FFXIVClientStructs.Common">
+      <HintPath>..\..\FFXIVClientStructs\bin\Debug\FFXIVClientStructs.Common.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
@@ -82,4 +85,25 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+
+  <Target Name="ILRepack" AfterTargets="Build">
+    <ItemGroup>
+      <InputAssemblies Include="$(TargetPath)" />
+      <InputAssemblies Include="$(TargetDir)*.dll" Exclude="$(TargetPath)" />
+    </ItemGroup>
+    <Exec Command="$(PkgILRepack)\tools\ILRepack.exe /lib:$(DalamudLibPath) /out:$(TargetDir)$(TargetFileName) @(InputAssemblies, ' ')" />
+  </Target>
+
+  <Target Name="CleanOutDir" AfterTargets="ILRepack">
+    <ItemGroup>
+      <DeleteAssemblies Include="$(TargetDir)*.dll" Exclude="$(TargetPath)" />
+    </ItemGroup>
+    <Message Text="Deleting @(DeleteAssemblies)" Importance="high" />
+    <Delete Files="@(DeleteAssemblies)" />
+  </Target>
+
+  <Target Name="PackagePlugin" AfterTargets="CleanOutDir" Condition=" '$(Configuration)' == 'Release' ">
+    <Message Text="Starting DalamudPackager" Importance="high" />
+    <DalamudPackager ProjectDir="$(ProjectDir)" OutputPath="$(OutputPath)" AssemblyName="$(AssemblyName)" VersionComponents="4" MakeZip="true" />
+  </Target>
  </Project>
