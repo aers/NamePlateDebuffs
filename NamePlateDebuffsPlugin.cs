@@ -16,10 +16,15 @@ namespace NamePlateDebuffs
         internal PluginAddressResolver Address;
         internal StatusNodeManager StatusNodeManager;
         internal AddonNamePlateHooks Hooks;
+        internal NamePlateDebuffsPluginUI UI;
+        internal NamePlateDebuffsPluginConfig Config;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             Interface = pluginInterface ?? throw new ArgumentNullException(nameof(pluginInterface), "DalamudPluginInterface cannot be null");
+
+            Config = pluginInterface.GetPluginConfig() as NamePlateDebuffsPluginConfig ?? new NamePlateDebuffsPluginConfig();
+            Config.Initialize(pluginInterface);
 
             if (!FFXIVClientStructs.Resolver.Initialized) FFXIVClientStructs.Resolver.Initialize();
 
@@ -30,9 +35,12 @@ namespace NamePlateDebuffs
 
             Hooks = new AddonNamePlateHooks(this);
             Hooks.Initialize();
+
+            UI = new NamePlateDebuffsPluginUI(this);
         }
         public void Dispose()
         {
+            UI.Dispose();
             Hooks.Dispose();
             StatusNodeManager.Dispose();
         }

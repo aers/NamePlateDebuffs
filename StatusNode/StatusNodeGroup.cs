@@ -1,21 +1,26 @@
 ﻿using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.System.Memory;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using System;
 
 namespace NamePlateDebuffs.StatusNode
 {
     internal unsafe class StatusNodeGroup
     {
+        private NamePlateDebuffsPlugin _plugin;
+
         public AtkResNode* RootNode { get; private set; }
         public StatusNode[] StatusNodes { get; private set; }
 
         public static ushort NodePerGroupCount = 4;
 
-        public StatusNodeGroup()
+        public StatusNodeGroup(NamePlateDebuffsPlugin p)
         {
+            _plugin = p;
+
             StatusNodes = new StatusNode[NodePerGroupCount];
             for (int i = 0; i < NodePerGroupCount; i++)
-                StatusNodes[i] = new StatusNode();
+                StatusNodes[i] = new StatusNode(_plugin);
         }
 
         public bool Built()
@@ -59,7 +64,7 @@ namespace NamePlateDebuffs.StatusNode
                 lastNode = currNode;
             }
 
-            SetupLayout();
+            LoadConfig();
             SetupVisibility();
 
             return true;
@@ -78,16 +83,38 @@ namespace NamePlateDebuffs.StatusNode
             }
         }
 
+        public void ForEachNode(Action<StatusNode> func)
+        {
+            foreach (var node in StatusNodes)
+                if (node != null)
+                    func(node);
+        }
+
+        public void LoadConfig()
+        {
+            RootNode->SetPositionShort((short)_plugin.Config.GroupX, (short)_plugin.Config.GroupY);
+            RootNode->SetScale(_plugin.Config.Scale, _plugin.Config.Scale);
+            
+            for (int i = 0; i < NodePerGroupCount; i++)
+            {
+                if (StatusNodes[i] != null)
+                {
+                    StatusNodes[i].RootNode->SetPositionShort((short) (i * (_plugin.Config.IconWidth + _plugin.Config.NodeSpacing)), 0);
+                }
+            }
+
+            RootNode->SetWidth((ushort) (24 * NodePerGroupCount + _plugin.Config.NodeSpacing * (NodePerGroupCount - 1)));
+
+            RootNode->SetHeight((ushort) (_plugin.Config.IconY + _plugin.Config.IconHeight));
+        }
+
         public void SetVisibility(bool enable, bool setChildren)
         {
             RootNode->ToggleVisibility(enable);
 
             if (setChildren)
             {
-                foreach (var node in StatusNodes)
-                {
-                    node.SetVisibility(enable);
-                }
+                ForEachNode(node => node.SetVisibility(enable));
             }
         }
         
@@ -107,14 +134,6 @@ namespace NamePlateDebuffs.StatusNode
             for (int i = NodePerGroupCount - 1; i > statusCount - 1; i--)
             {
                 StatusNodes[i].SetVisibility(false);
-            }
-        }
-
-        public void SetupLayout()
-        {
-            for (uint i = 0; i < NodePerGroupCount; i++)
-            {
-                StatusNodes[i].RootNode->SetPositionShort((short)(i * (24 + 3)), 0);
             }
         }
 
@@ -142,9 +161,6 @@ namespace NamePlateDebuffs.StatusNode
             newResNode->Ctor();
 
             newResNode->Type = NodeType.Res;
-            newResNode->SetHeight(41);
-            newResNode->SetWidth(24 * 4 + 3 * 3);
-            newResNode->SetPositionShort(27, 30);
             newResNode->Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop);
             newResNode->DrawFlags = 0;
 

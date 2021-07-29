@@ -49,6 +49,20 @@ namespace NamePlateDebuffs.StatusNode
             namePlateAddon = addon;
         }
 
+        public void ForEachGroup(Action<StatusNodeGroup> func)
+        {
+            foreach(var group in NodeGroups)
+                if (group != null)
+                    func(group);
+        }
+
+        public void ForEachNode(Action<StatusNode> func)
+        {
+            foreach (var group in NodeGroups)
+                if (group != null)
+                    group.ForEachNode(func);
+        }
+
         public void SetGroupVisibility(int index, bool enable, bool setChildren = false)
         {
             var group = NodeGroups[index];
@@ -81,6 +95,12 @@ namespace NamePlateDebuffs.StatusNode
             group.HideUnusedStatus(statusCount);
         }
 
+        public void LoadConfig()
+        {
+            ForEachGroup(group => group.LoadConfig());
+            ForEachNode(node => node.LoadConfig());
+        }
+
         public bool BuildNodes(bool rebuild = false)
         {
             if (namePlateAddon == null) return false;
@@ -89,7 +109,7 @@ namespace NamePlateDebuffs.StatusNode
  
             for(byte i = 0; i < NamePlateCount; i++)
             {
-                var nodeGroup = new StatusNodeGroup();
+                var nodeGroup = new StatusNodeGroup(_plugin);
                 var npObj = &namePlateAddon->NamePlateObjectArray[i];
                 if (!nodeGroup.BuildNodes(StartingNodeId))
                 {

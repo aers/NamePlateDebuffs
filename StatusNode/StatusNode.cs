@@ -6,15 +6,22 @@ namespace NamePlateDebuffs.StatusNode
 {
     internal unsafe class StatusNode
     {
+        private NamePlateDebuffsPlugin _plugin;
+
         public AtkResNode* RootNode { get; private set; }
         public AtkImageNode* IconNode { get; private set; }
         public AtkTextNode* DurationNode { get; private set; }
         public bool Visible { get; private set; }
 
-        private static int DefaultIconId = 10205;
+        public static int DefaultIconId = 10205;
 
         private int CurrentIconId = DefaultIconId;
         private int CurrentTimer = 60;
+
+        public StatusNode(NamePlateDebuffsPlugin p)
+        {
+            _plugin = p;
+        }
 
         public void SetVisibility(bool enable)
         {
@@ -36,6 +43,30 @@ namespace NamePlateDebuffs.StatusNode
                 DurationNode->SetText($"{timer}");
                 CurrentTimer = timer;
             }
+        }
+
+        public void LoadConfig()
+        {
+            if (!Built()) return;
+
+            RootNode->SetWidth((ushort) 24);
+            IconNode->AtkResNode.SetPositionShort((short)_plugin.Config.IconX, (short)_plugin.Config.IconY);
+            IconNode->AtkResNode.SetHeight((ushort)_plugin.Config.IconHeight);
+            IconNode->AtkResNode.SetWidth((ushort)_plugin.Config.IconWidth);
+            DurationNode->AtkResNode.SetPositionShort((short)_plugin.Config.DurationX, (short)_plugin.Config.DurationY);
+            DurationNode->FontSize = (byte) _plugin.Config.FontSize;
+
+            RootNode->SetHeight((ushort)(_plugin.Config.IconY + _plugin.Config.IconHeight));
+
+            DurationNode->TextColor.R = (byte)(_plugin.Config.DurationTextColor.X * 255);
+            DurationNode->TextColor.G = (byte)(_plugin.Config.DurationTextColor.Y * 255);
+            DurationNode->TextColor.B = (byte)(_plugin.Config.DurationTextColor.Z * 255);
+            DurationNode->TextColor.A = (byte)(_plugin.Config.DurationTextColor.W * 255);
+
+            DurationNode->EdgeColor.R = (byte)(_plugin.Config.DurationEdgeColor.X * 255);
+            DurationNode->EdgeColor.G = (byte)(_plugin.Config.DurationEdgeColor.Y * 255);
+            DurationNode->EdgeColor.B = (byte)(_plugin.Config.DurationEdgeColor.Z * 255);
+            DurationNode->EdgeColor.A = (byte)(_plugin.Config.DurationEdgeColor.W * 255);
         }
 
         public bool Built() => RootNode != null && IconNode != null && DurationNode != null;
@@ -75,6 +106,8 @@ namespace NamePlateDebuffs.StatusNode
             DurationNode->AtkResNode.NodeID = baseNodeId + 2;
             DurationNode->AtkResNode.ParentNode = RootNode;
             DurationNode->AtkResNode.NextSiblingNode = (AtkResNode*)IconNode;
+
+            LoadConfig();
 
             return true;
         }
@@ -118,9 +151,6 @@ namespace NamePlateDebuffs.StatusNode
             newResNode->Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop);
             newResNode->DrawFlags = 0;
 
-            newResNode->SetWidth(24);
-            newResNode->SetHeight(41);
-
             return newResNode;
         }
 
@@ -136,8 +166,6 @@ namespace NamePlateDebuffs.StatusNode
             newImageNode->Ctor();
 
             newImageNode->AtkResNode.Type = NodeType.Image;
-            newImageNode->AtkResNode.SetWidth(24);
-            newImageNode->AtkResNode.SetHeight(32);
             newImageNode->AtkResNode.Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop | NodeFlags.UseDepthBasedPriority);
             newImageNode->AtkResNode.DrawFlags = 0;
 
@@ -203,11 +231,10 @@ namespace NamePlateDebuffs.StatusNode
             newTextNode->Ctor();
 
             newTextNode->AtkResNode.Type = NodeType.Text;
-            newTextNode->AtkResNode.SetPositionShort(0, 23);
-            newTextNode->AtkResNode.SetWidth(24);
-            newTextNode->AtkResNode.SetHeight(18);
             newTextNode->AtkResNode.Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop | NodeFlags.UseDepthBasedPriority);
             newTextNode->AtkResNode.DrawFlags = 12;
+            newTextNode->AtkResNode.SetWidth(24);
+            newTextNode->AtkResNode.SetHeight(17);
 
             newTextNode->LineSpacing = 12;
             newTextNode->AlignmentFontType = 4;
@@ -215,17 +242,7 @@ namespace NamePlateDebuffs.StatusNode
             newTextNode->TextFlags = 8;
             newTextNode->TextFlags2 = 0;
 
-            newTextNode->TextColor.R = 0xFF;
-            newTextNode->TextColor.G = 0xFF;
-            newTextNode->TextColor.B = 0xFF;
-            newTextNode->TextColor.A = 0xFF;
-
-            newTextNode->EdgeColor.R = 0x00;
-            newTextNode->EdgeColor.G = 0x00;
-            newTextNode->EdgeColor.B = 0x00;
-            newTextNode->EdgeColor.A = 0xFF;
-
-            newTextNode->SetText("60");
+            newTextNode->SetText("20");
 
             return newTextNode;
         }

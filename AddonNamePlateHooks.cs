@@ -51,10 +51,29 @@ namespace NamePlateDebuffs
 
         public void AddonNamePlateDrawDetour(AddonNamePlate* thisPtr)
         {
+            if (!_plugin.Config.Enabled)
+            {
+                if (Timer.IsRunning)
+                {
+                    Timer.Stop();
+                    Timer.Reset();
+                    Elapsed = 0;
+                }
+
+                if (_plugin.StatusNodeManager.Built)
+                {
+                    _plugin.StatusNodeManager.DestroyNodes();
+                    _plugin.StatusNodeManager.SetNamePlateAddonPointer(null);
+                }
+
+                hookAddonNamePlateDraw.Original(thisPtr);
+                return;
+            }
+
             Elapsed += Timer.ElapsedMilliseconds;
             Timer.Restart();
 
-            if (Elapsed >= 100)
+            if (Elapsed >= _plugin.Config.UpdateInterval)
             {
                 if (!_plugin.StatusNodeManager.Built)
                 {
@@ -77,27 +96,34 @@ namespace NamePlateDebuffs
 
                     _plugin.StatusNodeManager.SetGroupVisibility(objectInfo->NamePlateIndex, true, false);
 
-                    var localPlayerID = _plugin.Interface.ClientState.LocalPlayer.ActorId;
-                    var targetStatus = ((BattleChara*)objectInfo->GameObject)->StatusManager;
-
-                    var statusArray = (Status*)targetStatus.Status;
-
-                    var count = 0;
-
-                    for (int j = 0; j < 30; j++)
+                    if (_plugin.Config.ConfigMode)
                     {
-                        var status = statusArray[j];
-                        if (status.StatusID == 0) continue;
-                        if (status.SourceID != localPlayerID) continue;
-
-                        _plugin.StatusNodeManager.SetStatus(objectInfo->NamePlateIndex, count, status.StatusID, (int)status.RemainingTime);
-                        count++;
-
-                        if (count == 4)
-                            break;
+                        _plugin.StatusNodeManager.ForEachNode(node => node.SetStatus(StatusNode.StatusNode.DefaultIconId, 20));
                     }
+                    else
+                    {
+                        var localPlayerID = _plugin.Interface.ClientState.LocalPlayer.ActorId;
+                        var targetStatus = ((BattleChara*)objectInfo->GameObject)->StatusManager;
 
-                    _plugin.StatusNodeManager.HideUnusedStatus(objectInfo->NamePlateIndex, count);
+                        var statusArray = (Status*)targetStatus.Status;
+
+                        var count = 0;
+
+                        for (int j = 0; j < 30; j++)
+                        {
+                            var status = statusArray[j];
+                            if (status.StatusID == 0) continue;
+                            if (status.SourceID != localPlayerID) continue;
+
+                            _plugin.StatusNodeManager.SetStatus(objectInfo->NamePlateIndex, count, status.StatusID, (int)status.RemainingTime);
+                            count++;
+
+                            if (count == 4)
+                                break;
+                        }
+
+                        _plugin.StatusNodeManager.HideUnusedStatus(objectInfo->NamePlateIndex, count);
+                    }
                 }
 
                 Elapsed = 0;
