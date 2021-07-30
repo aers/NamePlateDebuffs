@@ -90,7 +90,7 @@ namespace NamePlateDebuffs
                 for (int i = 0; i < ui3DModule->NamePlateObjectInfoCount; i++)
                 {
                     var objectInfo = ((UI3DModule.ObjectInfo**)ui3DModule->NamePlateObjectInfoPointerArray)[i];
-                    if (objectInfo->NamePlateObjectKind != 3 && objectInfo->NamePlateObjectKind != 4)
+                    if (objectInfo->NamePlateObjectKind != 3)
                     {
                         _plugin.StatusNodeManager.SetGroupVisibility(objectInfo->NamePlateIndex, false, true);
                         continue;
@@ -129,9 +129,9 @@ namespace NamePlateDebuffs
 
                     if (objectInfo == ui3DModule->TargetObjectInfo && objectInfo != LastTarget)
                     {
-                        _plugin.StatusNodeManager.SetDepthPriority(objectInfo->NamePlateIndex, true);
+                        _plugin.StatusNodeManager.SetDepthPriority(objectInfo->NamePlateIndex, false);
                         if (LastTarget != null)
-                            _plugin.StatusNodeManager.SetDepthPriority(LastTarget->NamePlateIndex, false);
+                            _plugin.StatusNodeManager.SetDepthPriority(LastTarget->NamePlateIndex, true);
                         LastTarget = objectInfo;
                     }
                 }

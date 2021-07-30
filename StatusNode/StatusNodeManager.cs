@@ -97,8 +97,14 @@ namespace NamePlateDebuffs.StatusNode
 
         public void SetDepthPriority(int groupIndex, bool enable)
         {
-            ForEachGroup(group => group.RootNode->SetUseDepthBasedPriority(enable));
-            ForEachNode(node =>
+            var group = NodeGroups[groupIndex];
+
+            if (group == null)
+                return;
+
+            group.RootNode->SetUseDepthBasedPriority(enable);
+
+            group.ForEachNode(node =>
             {
                 node.RootNode->SetUseDepthBasedPriority(enable);
                 node.DurationNode->AtkResNode.SetUseDepthBasedPriority(enable);
