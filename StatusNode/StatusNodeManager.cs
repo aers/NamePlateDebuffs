@@ -95,6 +95,17 @@ namespace NamePlateDebuffs.StatusNode
             group.HideUnusedStatus(statusCount);
         }
 
+        public void SetDepthPriority(int groupIndex, bool enable)
+        {
+            ForEachGroup(group => group.RootNode->SetUseDepthBasedPriority(enable));
+            ForEachNode(node =>
+            {
+                node.RootNode->SetUseDepthBasedPriority(enable);
+                node.DurationNode->AtkResNode.SetUseDepthBasedPriority(enable);
+                node.IconNode->AtkResNode.SetUseDepthBasedPriority(enable);
+            });
+        }
+
         public void LoadConfig()
         {
             ForEachNode(node => node.LoadConfig());

@@ -26,6 +26,8 @@ namespace NamePlateDebuffs
         private Stopwatch Timer;
         private long Elapsed;
 
+        private UI3DModule.ObjectInfo* LastTarget;
+
         public AddonNamePlateHooks(NamePlateDebuffsPlugin p)
         {
             _plugin = p;
@@ -123,6 +125,14 @@ namespace NamePlateDebuffs
                         }
 
                         _plugin.StatusNodeManager.HideUnusedStatus(objectInfo->NamePlateIndex, count);
+                    }
+
+                    if (objectInfo == ui3DModule->TargetObjectInfo && objectInfo != LastTarget)
+                    {
+                        _plugin.StatusNodeManager.SetDepthPriority(objectInfo->NamePlateIndex, true);
+                        if (LastTarget != null)
+                            _plugin.StatusNodeManager.SetDepthPriority(LastTarget->NamePlateIndex, false);
+                        LastTarget = objectInfo;
                     }
                 }
 
