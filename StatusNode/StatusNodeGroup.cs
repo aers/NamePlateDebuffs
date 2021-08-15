@@ -102,7 +102,7 @@ namespace NamePlateDebuffs.StatusNode
             {
                 if (StatusNodes[i] != null)
                 {
-                    StatusNodes[i].RootNode->SetPositionShort((short)(i * (StatusNodes[0].RootNode->Width + _plugin.Config.NodeSpacing)), 0);
+                    StatusNodes[i].RootNode->SetPositionShort((short)((_plugin.Config.FillFromRight ? 3 - i : i) * (StatusNodes[0].RootNode->Width + _plugin.Config.NodeSpacing)), 0);
                 }
             }
         }

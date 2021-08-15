@@ -46,7 +46,7 @@ namespace NamePlateDebuffs
             if (!ConfigOpen)
                 return;
 
-            ImGui.SetNextWindowSize(new Vector2(420, 625), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(420, 647), ImGuiCond.Always);
 
             if (!ImGui.Begin(_plugin.Name, ref ConfigOpen, ImGuiWindowFlags.NoResize))
             {
@@ -54,146 +54,53 @@ namespace NamePlateDebuffs
                 return;
             }
 
+            bool needSave = false;
+
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                if (ImGui.Checkbox("Enabled", ref _plugin.Config.Enabled))
-                    _plugin.Config.Save();
-                if (ImGui.InputInt("Update Interval (ms)", ref _plugin.Config.UpdateInterval, 10))
-                    _plugin.Config.Save();
+                needSave |= ImGui.Checkbox("Enabled", ref _plugin.Config.Enabled);
+                needSave |= ImGui.InputInt("Update Interval (ms)", ref _plugin.Config.UpdateInterval, 10);
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Interval between status updates in milliseconds");
                 if (ImGui.Button("Reset Config to Defaults"))
                 {
                     _plugin.Config.SetDefaults();
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
+                    needSave = true;
                 }
                 ImGui.Text("While config is open, test nodes are displayed to help with configuration.");
             }
 
             if (ImGui.CollapsingHeader("Node Group", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                if (ImGui.InputInt("X Offset", ref _plugin.Config.GroupX))
-                {
-                    if (_plugin.Config.GroupX > 100)
-                        _plugin.Config.GroupX = 100;
-                    if (_plugin.Config.GroupX < -100)
-                        _plugin.Config.GroupX = -100;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Y Offset", ref _plugin.Config.GroupY))
-                {
-                    if (_plugin.Config.GroupY > 100)
-                        _plugin.Config.GroupY = 100;
-                    if (_plugin.Config.GroupY < -100)
-                        _plugin.Config.GroupY = -100;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Node Spacing", ref _plugin.Config.NodeSpacing))
-                {
-                    if (_plugin.Config.NodeSpacing > 20)
-                        _plugin.Config.NodeSpacing = 20;
-                    if (_plugin.Config.NodeSpacing < -5)
-                        _plugin.Config.NodeSpacing = -5;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.DragFloat("Group Scale", ref _plugin.Config.Scale, 0.01F, 0.25F, 3.0F))
-                {
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
+                needSave |= ImGui.Checkbox("Fill From Right", ref _plugin.Config.FillFromRight);
+                needSave |= ImGui.SliderInt("X Offset", ref _plugin.Config.GroupX, -200, 200);
+                needSave |= ImGui.SliderInt("Y Offset", ref _plugin.Config.GroupY, -200, 200);
+                needSave |= ImGui.SliderInt("Node Spacing", ref _plugin.Config.NodeSpacing, -5, 30);
+                needSave |= ImGui.SliderFloat("Group Scale", ref _plugin.Config.Scale, 0.01F, 3.0F);
             }
 
             if (ImGui.CollapsingHeader("Node", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 ImGui.Text("Try and maintain a 3:4 ratio of Icon Width:Icon Height for best results.");
-                if (ImGui.InputInt("Icon X Offset", ref _plugin.Config.IconX))
-                {
-                    if (_plugin.Config.IconX > 100)
-                        _plugin.Config.IconX = 100;
-                    if (_plugin.Config.IconX < -100)
-                        _plugin.Config.IconX = -100;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Icon Y Offset", ref _plugin.Config.IconY))
-                {
-                    if (_plugin.Config.IconY > 100)
-                        _plugin.Config.IconY = 100;
-                    if (_plugin.Config.IconY < -100)
-                        _plugin.Config.IconY = -100;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Icon Width", ref _plugin.Config.IconWidth))
-                {
-                    if (_plugin.Config.IconWidth > 100)
-                        _plugin.Config.IconWidth = 100;
-                    if (_plugin.Config.IconWidth < 10)
-                        _plugin.Config.IconWidth = 10;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Icon Height", ref _plugin.Config.IconHeight))
-                {
-                    if (_plugin.Config.IconHeight > 100)
-                        _plugin.Config.IconHeight = 100;
-                    if (_plugin.Config.IconHeight < 10)
-                        _plugin.Config.IconHeight = 10;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Duration X Offset", ref _plugin.Config.DurationX))
-                {
-                    if (_plugin.Config.DurationX > 100)
-                        _plugin.Config.DurationX = 100;
-                    if (_plugin.Config.DurationX < -100)
-                        _plugin.Config.DurationX = -100;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Duration Y Offset", ref _plugin.Config.DurationY))
-                {
-                    if (_plugin.Config.DurationY > 100)
-                        _plugin.Config.DurationY = 100;
-                    if (_plugin.Config.DurationY < -100)
-                        _plugin.Config.DurationY = -100;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Duration Font Size", ref _plugin.Config.FontSize))
-                {
-                    if (_plugin.Config.FontSize > 60)
-                        _plugin.Config.FontSize = 60;
-                    if (_plugin.Config.FontSize < 1)
-                        _plugin.Config.FontSize = 1;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.InputInt("Duration Padding", ref _plugin.Config.DurationPadding))
-                {
-                    if (_plugin.Config.DurationPadding > 100)
-                        _plugin.Config.DurationPadding = 100;
-                    if (_plugin.Config.DurationPadding < -100)
-                        _plugin.Config.DurationPadding = -100;
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.ColorEdit4("Duration Text Color", ref _plugin.Config.DurationTextColor))
-                {
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
-                if (ImGui.ColorEdit4("Duration Edge Color", ref _plugin.Config.DurationEdgeColor))
-                {
-                    _plugin.StatusNodeManager.LoadConfig();
-                    _plugin.Config.Save();
-                }
+                needSave |= ImGui.SliderInt("Icon X Offset", ref _plugin.Config.IconX, -200, 200);
+                needSave |= ImGui.SliderInt("Icon Y Offset", ref _plugin.Config.IconY, -200, 200);
+                needSave |= ImGui.SliderInt("Icon Width", ref _plugin.Config.IconWidth, 5, 100);
+                needSave |= ImGui.SliderInt("Icon Height", ref _plugin.Config.IconHeight, 5, 100);
+                needSave |= ImGui.SliderInt("Duration X Offset", ref _plugin.Config.DurationX, -200, 200);
+                needSave |= ImGui.SliderInt("Duration Y Offset", ref _plugin.Config.DurationY, -200, 200);
+                needSave |= ImGui.SliderInt("Duration Font Size", ref _plugin.Config.FontSize, 1, 60);
+                needSave |= ImGui.SliderInt("Duration Padding", ref _plugin.Config.DurationPadding, -100, 100);
 
+                needSave |= ImGui.ColorEdit4("Duration Text Color", ref _plugin.Config.DurationTextColor);
+                needSave |= ImGui.ColorEdit4("Duration Edge Color", ref _plugin.Config.DurationEdgeColor);
             }
+
+            if (needSave)
+            {
+                _plugin.StatusNodeManager.LoadConfig();
+                _plugin.Config.Save();
+            }
+
 
             ImGui.End();
         }

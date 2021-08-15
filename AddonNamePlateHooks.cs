@@ -104,7 +104,12 @@ namespace NamePlateDebuffs
                     }
                     else
                     {
-                        var localPlayerID = _plugin.Interface.ClientState.LocalPlayer?.ActorId;
+                        var localPlayerId = _plugin.Interface.ClientState.LocalPlayer?.ActorId;
+                        if (localPlayerId is null)
+                        {
+                            _plugin.StatusNodeManager.HideUnusedStatus(objectInfo->NamePlateIndex, 0);
+                            continue;
+                        }
                         var targetStatus = ((BattleChara*)objectInfo->GameObject)->StatusManager;
 
                         var statusArray = (Status*)targetStatus.Status;
@@ -115,7 +120,7 @@ namespace NamePlateDebuffs
                         {
                             var status = statusArray[j];
                             if (status.StatusID == 0) continue;
-                            if (status.SourceID != localPlayerID) continue;
+                            if (status.SourceID != localPlayerId) continue;
 
                             _plugin.StatusNodeManager.SetStatus(objectInfo->NamePlateIndex, count, status.StatusID, (int)status.RemainingTime);
                             count++;
