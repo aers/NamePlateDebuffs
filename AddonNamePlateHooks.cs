@@ -104,7 +104,7 @@ namespace NamePlateDebuffs
                     }
                     else
                     {
-                        var localPlayerID = _plugin.Interface.ClientState.LocalPlayer.ActorId;
+                        var localPlayerID = _plugin.Interface.ClientState.LocalPlayer?.ActorId;
                         var targetStatus = ((BattleChara*)objectInfo->GameObject)->StatusManager;
 
                         var statusArray = (Status*)targetStatus.Status;
