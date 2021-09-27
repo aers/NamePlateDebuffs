@@ -84,7 +84,7 @@ namespace NamePlateDebuffs
                         return;
                 }
 
-                var framework = (Framework*)_plugin.Framework.Address.BaseAddress.ToPointer();
+                var framework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance();
                 var ui3DModule = framework->GetUiModule()->GetUI3DModule();
 
                 for (int i = 0; i < ui3DModule->NamePlateObjectInfoCount; i++)
