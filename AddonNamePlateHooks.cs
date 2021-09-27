@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace NamePlateDebuffs
 {
-    internal unsafe class AddonNamePlateHooks : IDisposable
+    public unsafe class AddonNamePlateHooks : IDisposable
     {
         private NamePlateDebuffsPlugin _plugin;
 
@@ -84,7 +84,7 @@ namespace NamePlateDebuffs
                         return;
                 }
 
-                var framework = (Framework*)_plugin.Interface.Framework.Address.BaseAddress.ToPointer();
+                var framework = (Framework*)_plugin.Framework.Address.BaseAddress.ToPointer();
                 var ui3DModule = framework->GetUiModule()->GetUI3DModule();
 
                 for (int i = 0; i < ui3DModule->NamePlateObjectInfoCount; i++)
@@ -104,7 +104,7 @@ namespace NamePlateDebuffs
                     }
                     else
                     {
-                        var localPlayerId = _plugin.Interface.ClientState.LocalPlayer?.ActorId;
+                        var localPlayerId = _plugin.ClientState.LocalPlayer?.ObjectId;
                         if (localPlayerId is null)
                         {
                             _plugin.StatusNodeManager.HideUnusedStatus(objectInfo->NamePlateIndex, 0);

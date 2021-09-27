@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace NamePlateDebuffs
 {
     [Serializable]
-    internal class NamePlateDebuffsPluginConfig : IPluginConfiguration
+    public class NamePlateDebuffsPluginConfig : IPluginConfiguration
     {
         public int Version { get; set; } = 0;
 

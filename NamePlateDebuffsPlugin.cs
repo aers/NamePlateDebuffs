@@ -7,6 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dalamud.Data;
+using Dalamud.Game;
+using Dalamud.Game.ClientState;
+using Dalamud.Logging;
 
 namespace NamePlateDebuffs
 {
@@ -14,26 +18,43 @@ namespace NamePlateDebuffs
     {
         public string Name => "NamePlateDebuffs";
 
-        internal DalamudPluginInterface Interface;
-        internal PluginAddressResolver Address;
-        internal StatusNodeManager StatusNodeManager;
-        internal AddonNamePlateHooks Hooks;
-        internal NamePlateDebuffsPluginUI UI;
-        internal NamePlateDebuffsPluginConfig Config;
+        public ClientState ClientState { get; private set; } = null!;
+        public static CommandManager CommandManager { get; private set; } = null!;
+        public DalamudPluginInterface Interface { get; private set; } = null!;
+        public DataManager DataManager { get; private set; } = null!;
+        public Framework Framework { get; private set; } = null!;
+        public PluginAddressResolver Address { get; private set; } = null!;
+        public StatusNodeManager StatusNodeManager { get; private set; } = null!;
+        public static SigScanner SigScanner { get; private set; } = null!;
+        public static AddonNamePlateHooks Hooks { get; private set; } = null!;
+        public NamePlateDebuffsPluginUI UI { get; private set; } = null!;
+        public NamePlateDebuffsPluginConfig Config { get; private set; } = null!;
 
         internal bool InPvp;
 
-        public void Initialize(DalamudPluginInterface pluginInterface)
+        public NamePlateDebuffsPlugin(
+            ClientState clientState,
+            CommandManager commandManager, 
+            DalamudPluginInterface pluginInterface, 
+            DataManager dataManager,
+            Framework framework, 
+            SigScanner sigScanner
+            )
         {
-            Interface = pluginInterface ?? throw new ArgumentNullException(nameof(pluginInterface), "DalamudPluginInterface cannot be null");
+            ClientState = clientState;
+            CommandManager = commandManager;
+            DataManager = dataManager;
+            Interface = pluginInterface;
+            Framework = framework;
+            SigScanner = sigScanner;
 
             Config = pluginInterface.GetPluginConfig() as NamePlateDebuffsPluginConfig ?? new NamePlateDebuffsPluginConfig();
             Config.Initialize(pluginInterface);
 
-            if (!FFXIVClientStructs.Resolver.Initialized) FFXIVClientStructs.Resolver.Initialize();
+            //if (!FFXIVClientStructs.Resolver.Initialized) FFXIVClientStructs.Resolver.Initialize();
 
             Address = new PluginAddressResolver();
-            Address.Setup(Interface.TargetModuleScanner);
+            Address.Setup();
 
             StatusNodeManager = new StatusNodeManager(this);
 
@@ -42,17 +63,17 @@ namespace NamePlateDebuffs
 
             UI = new NamePlateDebuffsPluginUI(this);
 
-            Interface.ClientState.TerritoryChanged += OnTerritoryChange;
+            ClientState.TerritoryChanged += OnTerritoryChange;
 
-            Interface.CommandManager.AddHandler("/npdebuffs", new CommandInfo(this.ToggleConfig)
+            CommandManager.AddHandler("/npdebuffs", new CommandInfo(this.ToggleConfig)
             {
                 HelpMessage = "Toggles config window."
             });
         }
         public void Dispose()
         {
-            Interface.ClientState.TerritoryChanged -= OnTerritoryChange;
-            Interface.CommandManager.RemoveHandler("/npdebuffs");
+            ClientState.TerritoryChanged -= OnTerritoryChange;
+            CommandManager.RemoveHandler("/npdebuffs");
 
             UI.Dispose();
             Hooks.Dispose();
@@ -63,8 +84,8 @@ namespace NamePlateDebuffs
         {
             try
             {
-                var territory = this.Interface.Data.GetExcelSheet<TerritoryType>().GetRow(e);
-                this.InPvp = territory.IsPvpZone;
+                var territory = DataManager.GetExcelSheet<TerritoryType>()?.GetRow(e);
+                if (territory != null) InPvp = territory.IsPvpZone;
             }
             catch (KeyNotFoundException)
             {

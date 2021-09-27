@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace NamePlateDebuffs.StatusNode
 {
-    internal unsafe class StatusNodeManager : IDisposable
+    public unsafe class StatusNodeManager : IDisposable
     {
         private NamePlateDebuffsPlugin _plugin;
 
@@ -36,7 +36,7 @@ namespace NamePlateDebuffs.StatusNode
 
             NodeGroups = new StatusNodeGroup[NamePlateCount];
 
-            StatusSheet = _plugin.Interface.Data.GetExcelSheet<Status>();
+            StatusSheet = _plugin.DataManager.GetExcelSheet<Status>();
         }
 
         public void Dispose()
